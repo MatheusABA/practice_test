@@ -1,7 +1,9 @@
 import net from 'node:net'
 
+type PingCallback = (err: Error | null, info?: { ip: string; time: [number, number] }) => void
+
 // This functiosn receives an IP address and a callback function.
-export const ping = (ip, callback) => {
+export const ping = (ip: string, callback: PingCallback) => {
   const startTime = process.hrtime()
 
   const client = net.connect({ port: 80, host: ip }, () => {
@@ -10,11 +12,10 @@ export const ping = (ip, callback) => {
       time: process.hrtime(startTime),
     })
     client.end()
-    return { time: process.hrtime(startTime), ip }
   })
   
   client.on('error', (err) => {
-    throw err
+    callback(err)
     client.end()
   })
 }
